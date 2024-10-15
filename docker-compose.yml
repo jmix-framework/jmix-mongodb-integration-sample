@@ -1,0 +1,30 @@
+version: '3.8'
+
+# Defining services for MongoDB and Mongo Express
+services:
+  # MongoDB Service
+  mongo:
+    image: mongo  # Specifies the official MongoDB image from Docker Hub
+    ports:
+      - "27017:27017"  # Maps port 27017 on the host to port 27017 in the container for external access
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root  # Sets the root username for MongoDB
+      MONGO_INITDB_ROOT_PASSWORD: petclinic  # Sets the root password for MongoDB
+
+    # Note: These environment variables initialize MongoDB with the specified root credentials.
+    # If the database doesn't already exist, MongoDB will create it automatically upon first use.
+
+  # Mongo Express Service - Web-based MongoDB admin interface
+  mongo-express:
+    image: mongo-express  # Specifies the official Mongo Express image for database management
+    restart: always  # Ensures the container restarts if it fails
+    ports:
+      - "8081:8081"  # Maps port 8081 on the host to port 8081 in the container for external access
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root  # Admin username for connecting to MongoDB
+      ME_CONFIG_MONGODB_ADMINPASSWORD: petclinic  # Admin password for connecting to MongoDB
+      ME_CONFIG_MONGODB_URL: mongodb://root:petclinic@mongo:27017/  # MongoDB connection URI for Mongo Express
+      ME_CONFIG_BASICAUTH: false  # Disables basic authentication for Mongo Express
+
+    # Note: The ME_CONFIG_MONGODB_URL uses the internal Docker network to connect to the `mongo` service by name.
+    # The Mongo Express interface is accessible at http://localhost:8081 on the host machine.

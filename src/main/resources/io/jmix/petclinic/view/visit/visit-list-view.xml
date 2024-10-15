@@ -104,6 +104,7 @@
                         <button id="createBtn" action="visitsDataGrid.create"/>
                         <button id="editBtn" action="visitsDataGrid.edit"/>
                         <button id="removeBtn" action="visitsDataGrid.remove"/>
+                        <button id="visitLogBtn" action="visitsDataGrid.visitLog"/>
                         <simplePagination id="pagination" dataLoader="visitsDl"/>
                     </hbox>
                     <dataGrid id="visitsDataGrid"
@@ -115,6 +116,7 @@
                             <action id="create" type="list_create"/>
                             <action id="edit" type="list_edit"/>
                             <action id="remove" type="list_remove"/>
+                            <action id="visitLog" type="list_itemTracking" icon="LIST" text="msg://visitLog"/>
                         </actions>
                         <columns resizable="true">
                             <column property="pet"/>

@@ -11,6 +11,7 @@ import io.jmix.core.metamodel.datatype.DatatypeFormatter;
 import io.jmix.core.security.CurrentAuthentication;
 import io.jmix.flowui.DialogWindows;
 import io.jmix.flowui.component.checkboxgroup.JmixCheckboxGroup;
+import io.jmix.flowui.component.grid.DataGrid;
 import io.jmix.flowui.component.select.JmixSelect;
 import io.jmix.flowui.component.tabsheet.JmixTabSheet;
 import io.jmix.flowui.facet.UrlQueryParametersFacet;
@@ -28,6 +29,8 @@ import io.jmix.petclinic.entity.visit.Visit;
 import io.jmix.petclinic.entity.visit.VisitType;
 import io.jmix.petclinic.view.main.MainView;
 import io.jmix.petclinic.view.visit.calendar.MonthFormatter;
+import io.jmix.petclinic.view.visitlog.VisitLogListView;
+import io.jmix.petclinic.visit.log.VisitLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +77,8 @@ public class VisitListView extends StandardListView<Visit> {
     private UrlQueryParametersFacet urlQueryParameters;
     @ViewComponent
     private DataContext dataContext;
+    @ViewComponent
+    private DataGrid<Visit> visitsDataGrid;
 
     private class CalendarUrlQueryParametersBinder extends AbstractUrlQueryParametersBinder {
 
@@ -270,5 +275,16 @@ public class VisitListView extends StandardListView<Visit> {
         ) {
             visitsDl.load();
         }
+    }
+
+    @Subscribe("visitsDataGrid.visitLog")
+    public void onVisitsDataGridVisitLog(final ActionPerformedEvent event) {
+        DialogWindow<VisitLogListView> dialog = dialogWindows.lookup(this, VisitLog.class)
+                .withViewClass(VisitLogListView.class)
+                .build();
+
+        dialog.getView().setVisit(visitsDataGrid.getSingleSelectedItem());
+
+        dialog.open();
     }
 }

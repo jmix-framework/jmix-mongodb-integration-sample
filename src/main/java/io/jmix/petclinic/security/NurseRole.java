@@ -7,6 +7,7 @@ import io.jmix.petclinic.entity.pet.PetType;
 import io.jmix.petclinic.entity.veterinarian.Specialty;
 import io.jmix.petclinic.entity.veterinarian.Veterinarian;
 import io.jmix.petclinic.entity.visit.Visit;
+import io.jmix.petclinic.visit.log.VisitLog;
 import io.jmix.security.model.EntityAttributePolicyAction;
 import io.jmix.security.model.EntityPolicyAction;
 import io.jmix.security.role.annotation.EntityAttributePolicy;
@@ -48,9 +49,13 @@ public interface NurseRole {
     @EntityPolicy(entityClass = PetType.class, actions = EntityPolicyAction.READ)
     void petType();
 
-    @ViewPolicy(viewIds = {"petclinic_MyVisits", "petclinic_Pet.list", "petclinic_Owner.list", "petclinic_Visit.list", "petclinic_Specialty.list", "petclinic_Veterinarian.list", "petclinic_PetType.list", "petclinic_Owner.detail", "petclinic_Pet.detail", "petclinic_PetType.detail", "petclinic_PetType.lookup", "petclinic_Specialty.detail", "petclinic_Veterinarian.detail", "petclinic_Visit.detail"})
+    @ViewPolicy(viewIds = {"petclinic_MyVisits", "petclinic_Pet.list", "petclinic_Owner.list", "petclinic_Visit.list", "petclinic_Specialty.list", "petclinic_Veterinarian.list", "petclinic_PetType.list", "petclinic_Owner.detail", "petclinic_Pet.detail", "petclinic_PetType.detail", "petclinic_PetType.lookup", "petclinic_Specialty.detail", "petclinic_Veterinarian.detail", "petclinic_Visit.detail", "petclinic_VisitLog.list", "petclinic_VisitLog.detail"})
     void views();
 
     @MenuPolicy(menuIds = {"petclinic_MyVisits", "petclinic_Pet.list", "petclinic_Owner.list", "petclinic_Visit.list", "petclinic_Specialty.list", "petclinic_Veterinarian.list", "petclinic_PetType.list"})
     void screens();
+
+    @EntityAttributePolicy(entityClass = VisitLog.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @EntityPolicy(entityClass = VisitLog.class, actions = EntityPolicyAction.ALL)
+    void visitLog();
 }
