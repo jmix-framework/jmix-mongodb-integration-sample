@@ -10,6 +10,7 @@ The application uses Jmix and Spring Data MongoDB to create, read, update, and d
 
 ## Table of Contents
 
+0. [Adding Dependencies](#0-adding-dependencies)
 1. [MongoDB Setup](#1-mongodb-setup)
 2. [MongoDB Configuration](#2-mongodb-configuration)
 3. [Creating a VisitLog Entity](#3-creating-a-visitlog-entity)
