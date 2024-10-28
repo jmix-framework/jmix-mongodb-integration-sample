@@ -1,0 +1,111 @@
+:sample-project: jmix-mongodb-datastore-sample
+
+= MongoDB Integration in Jmix
+
+This guide demonstrates how to integrate MongoDB as an additional database within a Jmix application. MongoDB, a popular NoSQL database, allows for flexible and scalable data storage. In this guide, you’ll configure MongoDB to manage `VisitLog` entries associated with Jmix `Visit` entities. We’ll leverage Spring Data MongoDB within Jmix to handle CRUD operations for `VisitLog` entries, creating a logbook structure while keeping the data model and UI logic separate.
+
+
+[[requirements]]
+== Requirements
+
+If you want to implement this guide step by step, you will need the following:
+
+1. xref:ROOT:setup.adoc[Setup Jmix Studio]
+2. Download the sample project. You can **download the completed sample project**, which includes all the examples used in this guide. This allows you to explore the finished implementation and experiment with the functionality right away.
+* https://github.com/jmix-framework/{sample-project}/archive/refs/heads/main.zip[Download^] and unzip the source repository
+* or clone it using git:
+`git clone https://github.com/jmix-framework/{sample-project}.git`
+
+Alternatively, you can **start with the base Petclinic project** and follow the step-by-step instructions in this guide to implement the features yourself: https://github.com/jmix-framework/jmix-petclinic-2[Jmix Petclinic] and follow along to add the functionality step-by-step.
+
+[[what-we-are-going-to-build]]
+== What We are Going to Build
+
+In this guide, we enhance the https://github.com/jmix-framework/jmix-petclinic-2[Jmix Petclinic^] by integrating MongoDB to store `VisitLog` entries that detail specific interactions within the application. This MongoDB setup allows us to manage visit logs independently of the Jmix persistence context, ensuring a separation between core Jmix entities and log data.
+
+The final application will include:
+
+- **MongoDB Integration**: Setting up MongoDB to store visit log data.
+- **Entity Layer**: Differentiating between persistent entities and UI-facing DTOs.
+- **Service Layer**: Converting between MongoDB entities and Jmix DTOs, while managing CRUD operations.
+- **UI Integration**: Displaying and managing `VisitLog` entries via Jmix UI components, with full CRUD support.
+
+[[final-application]]
+=== Final Application
+
+video::zTYx_KSeMzY[youtube,width=1280,height=600]
+
+[[integration-approaches]]
+== MongoDB Integration Approaches in Jmix
+
+In Jmix applications, MongoDB can be integrated as an additional data source using one of two main approaches:
+
+1. **UI Data Components with Custom Delegates**: In this approach, MongoDB is accessed independently via standard UI Data Components, which are configured with custom `LoadDelegate` and `SaveDelegate` methods. These delegates direct CRUD operations to a MongoDB service layer, simplifying integration for specific use cases. However, this setup bypasses generic Jmix features like security and the Generic Filter component.
+
+2. **Implementing the Jmix Datastore API**: Jmix’s `DataStore` API allows MongoDB to integrate directly with the Jmix Data Manager, embedding MongoDB entities into the Jmix persistence context. This approach supports high-level features such as the security system and the Generic Filter component but requires a more complex setup, suitable for core integrations.
+
+In this guide, we focus on using UI Data Components with Custom Delegates, keeping MongoDB interactions separate from the Jmix Data Manager while enabling straightforward integration for specific application needs.
+
+[[mongodb-setup]]
+== MongoDB Setup
+
+Before configuring the Jmix application, set up MongoDB as a prerequisite. In this example, we use Docker Compose to simplify the setup, which is ideal for local development environments. Docker Compose allows MongoDB to be quickly deployed, and we include Mongo Express as an optional, web-based interface for directly managing MongoDB data.
+
+Create a `docker-compose.yml` file with the following configuration:
+
+.docker-compose.yml
+[source,yml,indent=0]
+----
+include::example$/docker-compose.yml[]
+----
+
+This configuration starts two services:
+- **MongoDB** for data storage, accessible on port `27017`.
+- **Mongo Express** for a UI to manage MongoDB data, accessible on port `8081`.
+
+To launch MongoDB and Mongo Express, run:
+
+[source,bash,indent=0]
+----
+$ docker compose up
+----
+
+Once started, Mongo Express can be accessed at `http://localhost:8081`, where you can view and manage MongoDB collections and data directly.
+
+With MongoDB running, proceed to configure the Jmix application to connect to the database.
+
+[[adding-dependencies]]
+== Adding Dependencies
+
+To integrate MongoDB with Jmix, add the `spring-boot-starter-data-mongodb` dependency to your `build.gradle` file:
+
+.build.gradle
+[source,groovy]
+----
+include::example$/build.gradle[tags=gradle-dependencies;mongodb-dependency]
+----
+
+The `spring-boot-starter-data-mongodb` is part of the Spring Data project, managed and supported directly by the Spring team. It is the standard solution for integrating MongoDB within Spring applications, providing Spring Data repositories, MongoDB-specific annotations, and utilities. This starter simplifies interactions with MongoDB and is fully compatible with Spring Boot.
+
+The version of `spring-boot-starter-data-mongodb` aligns automatically with the compatible Spring Boot version, as defined by the Jmix BOM (Bill of Materials). This setup ensures compatibility and minimizes manual dependency management.
+
+[[mongodb-configuration]]
+== MongoDB Configuration
+
+In your Jmix application, configure the MongoDB connection URI in `application.properties`. Use the credentials defined in the Docker Compose setup:
+
+.application.properties
+[source,properties]
+----
+spring.data.mongodb.uri=mongodb://root:petclinic@localhost:27017/petclinic?authSource=admin
+----
+
+This configuration directs Jmix to connect to MongoDB for managing `VisitLog` entities or other collections, using the correct credentials and database specified in the URI.
+
+[[summary]]
+== Summary
+
+
+[[further-information]]
+=== Further Information
+*

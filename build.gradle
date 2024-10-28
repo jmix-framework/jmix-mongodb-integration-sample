@@ -29,7 +29,11 @@ vaadin {
     optimizeBundle = false
 }
 
+// tag::gradle-dependencies[]
 dependencies {
+
+    // end::gradle-dependencies[]
+
     implementation 'io.jmix.core:jmix-core-starter'
     implementation 'io.jmix.pessimisticlock:jmix-pessimisticlock-starter'
     implementation 'io.jmix.pessimisticlock:jmix-pessimisticlock-flowui-starter'
@@ -49,8 +53,6 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb' // MongoDB Starter for Spring Data
-
 
     runtimeOnly 'org.hsqldb:hsqldb'
 
@@ -61,7 +63,14 @@ dependencies {
     implementation 'io.jmix.gridexport:jmix-gridexport-flowui-starter'
 
     implementation 'org.apache.commons:commons-dbcp2'
+
+
+    // tag::mongodb-dependency[]
+    // ...
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb' // MongoDB Starter for Spring Data
+
 }
+// end::mongodb-dependency[]
 
 test {
     useJUnitPlatform()
