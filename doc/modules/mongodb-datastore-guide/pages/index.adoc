@@ -102,6 +102,40 @@ spring.data.mongodb.uri=mongodb://root:petclinic@localhost:27017/petclinic?authS
 
 This configuration directs Jmix to connect to MongoDB for managing `VisitLog` entities or other collections, using the correct credentials and database specified in the URI.
 
+[[creating-visitlog-entity]]
+== Creating a VisitLog Entity
+
+In this application, the persistence and presentation layers are separated by using two distinct classes:
+
+* **VisitLog**: A DTO entity used in the UI for managing and displaying visit log data.
+* **VisitLogDocument**: A dedicated persistence entity mapped to MongoDB for storing and retrieving visit logs.
+
+This separation enhances the application structure by isolating persistence details from the UI layer, ensuring a clear division of responsibilities.
+
+[[defining-visitlog-dto]]
+=== Defining the VisitLog DTO Entity
+
+The `VisitLog` entity is used in the Jmix UI for displaying and managing visit log data. It does not interact directly with MongoDB, serving instead as a clean representation of data for the UI components. It is implemented as a xref:data-model/entities.adoc[DTO Entity].
+
+.VisitLog.java
+[source,properties]
+----
+include::example$src/main/java/io/jmix/petclinic/visit/log/VisitLog.java[]
+----
+
+[[defining-visitlogdocument-persistence]]
+=== Defining the VisitLogDocument Persistence Entity
+
+The `VisitLogDocument` class is annotated with `@Document`, mapping it to a MongoDB collection. This class is the persistent representation of `VisitLog`, and it is used exclusively in the service layer to interact with MongoDB.
+
+include::path/to/VisitLogDocument.java[]
+
+In this setup:
+
+* The `VisitLogDocument` entity handles database interactions, with fields like `visitId` used as identifiers for the associated `Visit` entity, rather than full object references.
+* The `VisitLog` DTO provides a UI-facing model, with fields like `visit` representing direct associations that are useful for display and interaction in the Jmix UI.
+
+The `VisitLogService` class manages data conversions between `VisitLog` and `VisitLogDocument`, maintaining a clean separation of concerns between persistence and presentation layers.
 [[summary]]
 == Summary
 
