@@ -1,6 +1,9 @@
 package io.jmix.petclinic.visit.log;
 
+// tag::imports[]
 import org.springframework.data.mongodb.repository.MongoRepository;
+
+// end::imports[]
 
 import java.util.List;
 
@@ -30,6 +33,8 @@ import java.util.List;
  * @see VisitLogDocument
  * @see MongoRepository
  */
+// tag::repository[]
+
 public interface VisitLogDocumentRepository extends MongoRepository<VisitLogDocument, String> {
 
     /**
@@ -40,3 +45,4 @@ public interface VisitLogDocumentRepository extends MongoRepository<VisitLogDocu
      */
     List<VisitLogDocument> findByVisitId(String visitId);
 }
+// end::repository[]

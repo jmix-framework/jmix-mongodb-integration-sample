@@ -26,6 +26,11 @@ import java.util.UUID;
  * </ul>
  * </p>
  */
+// tag::imports[]
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+// tag::class[]
 @Component("petclinic_VisitLogService")
 public class VisitLogService {
 
@@ -55,6 +60,8 @@ public class VisitLogService {
                 .map(this::toVisitLog)
                 .toList();
     }
+
+    // end::class[]
 
     /**
      * Saves a {@link VisitLog} entry to the database by converting it into its persistent form, {@link VisitLogDocument}.
@@ -115,6 +122,8 @@ public class VisitLogService {
      * @param visitLogDocument The MongoDB document to convert.
      * @return The converted {@link VisitLog} entity.
      */
+
+    // tag::to-visit-log[]
     private VisitLog toVisitLog(VisitLogDocument visitLogDocument) {
         VisitLog visitLog = dataManager.create(VisitLog.class);
         entityStates.setNew(visitLog, false);
@@ -126,6 +135,7 @@ public class VisitLogService {
 
         return visitLog;
     }
+    // end::to-visit-log[]
 
     /**
      * Converts a {@link VisitLog} DTO entity to its persistent form, {@link VisitLogDocument}.

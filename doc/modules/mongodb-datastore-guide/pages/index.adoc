@@ -36,7 +36,7 @@ The final application will include:
 video::zTYx_KSeMzY[youtube,width=1280,height=600]
 
 [[integration-approaches]]
-== MongoDB Integration Approaches in Jmix
+== Integration Approaches
 
 In Jmix applications, MongoDB can be integrated as an additional data source using one of two main approaches:
 
@@ -102,6 +102,9 @@ spring.data.mongodb.uri=mongodb://root:petclinic@localhost:27017/petclinic?authS
 
 This configuration directs Jmix to connect to MongoDB for managing `VisitLog` entities or other collections, using the correct credentials and database specified in the URI.
 
+We will now examine each layer in detail, from database access and the service layer to the UI views.
+
+
 [[creating-visitlog-entity]]
 == Creating a VisitLog Entity
 
@@ -112,34 +115,118 @@ In this application, the persistence and presentation layers are separated by us
 
 This separation enhances the application structure by isolating persistence details from the UI layer, ensuring a clear division of responsibilities.
 
-[[defining-visitlog-dto]]
-=== Defining the VisitLog DTO Entity
+[[dto-entity]]
+=== DTO Entity
 
-The `VisitLog` entity is used in the Jmix UI for displaying and managing visit log data. It does not interact directly with MongoDB, serving instead as a clean representation of data for the UI components. It is implemented as a xref:data-model/entities.adoc[DTO Entity].
+The `VisitLog` entity is used in the Jmix UI for displaying and managing visit log data. As a xref:data-model:entities.adoc#dto[DTO entity], it does not interact directly with MongoDB but serves as a data model tailored for UI components.
+
+In this UI representation, `VisitLog` includes a direct reference to the `Visit` entity from the relational database. This is possible because `VisitLog` is only used in the UI layer. When data is converted to its persistent form for MongoDB, we store only the UUID of the associated `Visit`. Since a true foreign key relationship cannot exist between multiple databases, we store the identifier as a simple reference.
 
 .VisitLog.java
-[source,properties]
+[source,java,indent=0]
 ----
-include::example$src/main/java/io/jmix/petclinic/visit/log/VisitLog.java[]
+include::example$src/main/java/io/jmix/petclinic/visit/log/VisitLog.java[tags=imports;visit-log-entity;closing-class]
 ----
 
-[[defining-visitlogdocument-persistence]]
-=== Defining the VisitLogDocument Persistence Entity
+[[mongodb-document]]
+=== MongoDB Document
 
 The `VisitLogDocument` class is annotated with `@Document`, mapping it to a MongoDB collection. This class is the persistent representation of `VisitLog`, and it is used exclusively in the service layer to interact with MongoDB.
 
-include::path/to/VisitLogDocument.java[]
-
-In this setup:
-
-* The `VisitLogDocument` entity handles database interactions, with fields like `visitId` used as identifiers for the associated `Visit` entity, rather than full object references.
-* The `VisitLog` DTO provides a UI-facing model, with fields like `visit` representing direct associations that are useful for display and interaction in the Jmix UI.
+.VisitLogDocument.java
+[source,java,indent=0]
+----
+include::example$src/main/java/io/jmix/petclinic/visit/log/VisitLogDocument.java[tags=imports;visit-log-document;closing-class]
+----
+<1> `@Document` - Marks this class as a MongoDB document, treating `VisitLogDocument` as a collection in MongoDB. This annotation is specific to non-relational databases and replaces `@Entity`.
+<2> `@Id` - Defines the unique identifier field for each document in the MongoDB collection, functioning similarly to a primary key.
+<3> `visitId` - Stores the UUID of the associated `Visit` entry as a String.
 
 The `VisitLogService` class manages data conversions between `VisitLog` and `VisitLogDocument`, maintaining a clean separation of concerns between persistence and presentation layers.
+
+[[spring-data-repository]]
+== Spring Data Repository
+
+Next, let's take a look at how to access the database. We use a Spring Data repository from the above dependency `spring-boot-starter-data-mongodb`. Spring Data provides an abstraction layer specifically designed for data access, taking care of standard CRUD operations and making data interactions simpler and more efficient.
+
+Using Spring Data is an alternative to the `DataManager` commonly used in Jmix. The idea is to define an interface that automatically includes standard CRUD methods, allowing you to declare custom methods within the interface, which Spring Data then implements automatically.
+
+.VisitLogDocumentRepository.java
+[source,java,indent=0]
+----
+include::example$src/main/java/io/jmix/petclinic/visit/log/VisitLogDocumentRepository.java[tags=imports;repository]
+----
+
+This repository interface inherits CRUD operations like `save`, `findById`, `findAll`, and `deleteById` from `MongoRepository`, allowing standard data access without requiring additional implementation. It also includes a custom query method:
+
+* `findByVisitId(String visitId)`: Retrieves a list of `VisitLogDocument` entities associated with a specific `visitId`. Spring Data MongoDB automatically generates the query for this method based on its naming convention, making it easy to add custom finder methods.
+
+For more details on MongoDB repositories and custom query methods, refer to the Spring Data MongoDB repository documentation: https://docs.spring.io/spring-data/mongodb/reference/mongodb/repositories/repositories.html[Spring Data MongoDB repository documentation^].
+
+TIP: By the way, Spring Data repositories aren’t just limited to MongoDB or other non-relational databases; you can also use them for regular relational database interactions in Jmix. This provides an alternative to the `DataManager` API and can be a convenient option in business logic code when Spring Data’s approach feels like a better fit. For more details on using Spring Data repositories in Jmix, see:
+xref:data-access:data-repositories.adoc[].
+
+[[visit-log-service]]
+== Service Layer for Visit Logs
+
+After defining the repository, we can now use it within the service layer. While the repository handles only database access, the service layer takes on additional responsibilities, including business logic, data transformations, and providing a UI-friendly API.
+
+In our example, `VisitLogService` links the UI and MongoDB by converting `VisitLog` entries between their UI format (`VisitLog`) and persistent structure (`VisitLogDocument`). This setup lets the UI interact with an easy-to-use DTO while ensuring data is correctly stored and retrieved in MongoDB.
+
+Let's take a look at how the conversion from the Document to the DTO entity works, by reviewing the method to find all `VisitLog` entities for a given `Visit`:
+
+.VisitLogService.java
+[source,java,indent=0]
+----
+include::example$src/main/java/io/jmix/petclinic/visit/log/VisitLogService.java[tags=class;to-visit-log]
+----
+
+In `VisitLogService`, we use `VisitLogDocumentRepository` to retrieve `VisitLog` entries from MongoDB.
+
+The `findByVisit()` method fetches entries associated with a given `Visit` and converts them into `VisitLog` DTOs through `toVisitLog()`. During this conversion, `DataManager` resolves the `Visit` reference, and `EntityStates` marks the DTO as non-new.
+
+
+[[ui-integration-with-jmix]]
+== UI Integration with Jmix
+
+Now that we have `VisitLogService` set up, we can use it in the UI to handle `VisitLog` data associated with specific visits.
+
+In both the list and detail views, we use `DataContext` delegates to customize how Jmix accesses data. Where Jmix would normally interact with a relational database, we use custom implementations with calls to `VisitLogService` instead.
+
+[[visit-log-list-view]]
+=== Visit Log List View
+
+The `VisitLogListView` provides a data grid view where users can:
+
+1. View a list of `VisitLog` entries related to a specific `Visit`.
+2. Create new `VisitLog` entries, with the current `Visit` reference automatically associated.
+3. Remove selected `VisitLog` entries.
+
+This list view displays all `VisitLog` entries associated with a `Visit` and uses `VisitLogService` to handle CRUD operations.
+
+.VisitLogListView.java
+[source,java,indent=0]
+----
+include::example$src/main/java/io/jmix/petclinic/view/visitlog/VisitLogListView.java[]
+----
+
+[[visit-log-detail-view]]
+=== Visit Log Detail View
+
+The `VisitLogDetailView` allows users to view and edit details for a selected `VisitLog` entry associated with a specific `Visit`. This view uses `VisitLogService` to handle the loading and saving of `VisitLog` entities.
+
+The `VisitLogDetailView` includes essential methods for managing `VisitLog` entries and interacts with MongoDB via `VisitLogService`.
+
+.VisitLogDetailView.java
+[source,java,indent=0]
+----
+include::example$src/main/java/io/jmix/petclinic/view/visitlog/VisitLogDetailView.java[]
+----
+
 [[summary]]
 == Summary
 
 
 [[further-information]]
 === Further Information
-*
+* https://docs.spring.io/spring-data/mongodb/reference/mongodb/repositories/repositories.html[Spring Data MongoDB repository documentation^]

@@ -1,12 +1,15 @@
 package io.jmix.petclinic.visit.log;
 
-import io.jmix.core.entity.annotation.JmixId;
 import io.jmix.core.metamodel.annotation.InstanceName;
-import io.jmix.core.metamodel.annotation.JmixEntity;
-import io.jmix.core.metamodel.annotation.JmixProperty;
 import io.jmix.petclinic.entity.visit.Visit;
 import jakarta.validation.constraints.NotNull;
 
+// tag::imports[]
+import io.jmix.core.entity.annotation.JmixId;
+import io.jmix.core.metamodel.annotation.JmixEntity;
+import io.jmix.core.metamodel.annotation.JmixProperty;
+
+// end::imports[]
 
 /**
  * DTO entity used for the UI representation of visit logs in Jmix.
@@ -44,6 +47,8 @@ import jakarta.validation.constraints.NotNull;
  * @see JmixEntity
  * @see InstanceName
  */
+
+// tag::visit-log-entity[]
 @JmixEntity(name = "petclinic_VisitLog")
 public class VisitLog {
 
@@ -58,6 +63,10 @@ public class VisitLog {
 
     @InstanceName
     private String description;
+
+    // ...
+
+    // end::visit-log-entity[]
 
     public Visit getVisit() {
         return visit;
@@ -90,4 +99,8 @@ public class VisitLog {
     public void setId(String id) {
         this.id = id;
     }
+
+// tag::closing-class[]
+
 }
+// end::closing-class[]

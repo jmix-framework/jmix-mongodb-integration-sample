@@ -1,7 +1,11 @@
 package io.jmix.petclinic.visit.log;
 
+
+// tag::imports[]
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+// end::imports[]
 
 /**
  * MongoDB persistence class representing a `VisitLog` document for storage and retrieval from the database.
@@ -33,14 +37,21 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * @see VisitLog
  * @see org.springframework.data.mongodb.core.mapping.Document
  */
-@Document
+
+// tag::visit-log-document[]
+@Document // <1>
 public class VisitLogDocument {
 
-    @Id
+    @Id // <2>
     private String id;
-    private String visitId;
+
+    private String visitId; // <3>
     private String title;
     private String description;
+
+    // ...
+
+    // end::visit-log-document[]
 
     public String getDescription() {
         return description;
@@ -73,4 +84,8 @@ public class VisitLogDocument {
     public void setId(String id) {
         this.id = id;
     }
+
+// tag::closing-class[]
+
 }
+// end::closing-class[]
