@@ -43,6 +43,7 @@ import java.util.List;
  * @see VisitLogService
  * @see VisitLogDetailView
  */
+// tag::class[]
 @Route(value = "visitLogs", layout = MainView.class)
 @ViewController("petclinic_VisitLog.list")
 @ViewDescriptor("visit-log-list-view.xml")
@@ -56,6 +57,37 @@ public class VisitLogListView extends StandardListView<VisitLog> {
     private VisitLogService visitLogService;
     @Autowired
     private DialogWindows dialogWindows;
+
+
+    /**
+     * Sets the {@link Visit} reference for this view.
+     * <p>
+     * This method provides the visit context for the current `VisitLogListView`, ensuring that
+     * only `VisitLog` entries related to this `Visit` are loaded and displayed.
+     * </p>
+     *
+     * @param visit The {@link Visit} entity associated with the `VisitLog` entries displayed in this view.
+     */
+    public void setVisit(Visit visit) {
+        this.visit = visit; // <1>
+    }
+
+    /**
+     * Loads `VisitLog` entries associated with the specified {@link Visit}.
+     * <p>
+     * This method delegates the data loading to {@link VisitLogService#findByVisit}, ensuring that
+     * only the logs associated with the current `visit` are retrieved and displayed.
+     * </p>
+     *
+     * @param loadContext The load context provided by Jmix.
+     * @return A list of `VisitLog` entries associated with the current visit.
+     */
+    @Install(to = "visitLogsDl", target = Target.DATA_LOADER) // <2>
+    protected List<VisitLog> visitLogsDlLoadDelegate(LoadContext<VisitLog> loadContext) {
+        return visitLogService.findByVisit(visit); // <3>
+    }
+
+    // end::class[]
 
     /**
      * Opens a dialog to create a new {@link VisitLog} associated with the current {@link Visit}.
@@ -85,21 +117,6 @@ public class VisitLogListView extends StandardListView<VisitLog> {
     }
 
     /**
-     * Loads `VisitLog` entries associated with the specified {@link Visit}.
-     * <p>
-     * This method delegates the data loading to {@link VisitLogService#findByVisit}, ensuring that
-     * only the logs associated with the current `visit` are retrieved and displayed.
-     * </p>
-     *
-     * @param loadContext The load context provided by Jmix.
-     * @return A list of `VisitLog` entries associated with the current visit.
-     */
-    @Install(to = "visitLogsDl", target = Target.DATA_LOADER)
-    protected List<VisitLog> visitLogsDlLoadDelegate(LoadContext<VisitLog> loadContext) {
-        return visitLogService.findByVisit(visit);
-    }
-
-    /**
      * Removes the selected {@link VisitLog} entries from the database.
      * <p>
      * This method is triggered by the remove action in the data grid and uses {@link VisitLogService#removeVisitLogs}
@@ -112,17 +129,7 @@ public class VisitLogListView extends StandardListView<VisitLog> {
     private void visitLogsDataGridRemoveDelegate(final Collection<VisitLog> visitLogsToRemove) {
         visitLogService.removeVisitLogs(visitLogsToRemove);
     }
-
-    /**
-     * Sets the {@link Visit} reference for this view.
-     * <p>
-     * This method provides the visit context for the current `VisitLogListView`, ensuring that
-     * only `VisitLog` entries related to this `Visit` are loaded and displayed.
-     * </p>
-     *
-     * @param visit The {@link Visit} entity associated with the `VisitLog` entries displayed in this view.
-     */
-    public void setVisit(Visit visit) {
-        this.visit = visit;
-    }
+    // tag::end-class[]
 }
+
+// end::end-class[]

@@ -40,6 +40,8 @@ import java.util.Set;
  * @see VisitLogService
  * @see Visit
  */
+
+// tag::class[]
 @Route(value = "visitLogs/:id", layout = MainView.class)
 @ViewController("petclinic_VisitLog.detail")
 @ViewDescriptor("visit-log-detail-view.xml")
@@ -49,6 +51,45 @@ public class VisitLogDetailView extends StandardDetailView<VisitLog> {
     private Visit visit;
     @Autowired
     private VisitLogService visitLogService;
+
+    /**
+     * Sets the {@link Visit} reference for this view.
+     * <p>
+     * This method sets the visit context for the current `VisitLog` view. The provided `Visit` reference
+     * is later injected into the `VisitLog` entity before saving, establishing the correct association.
+     * </p>
+     *
+     * @param visit The {@link Visit} entity associated with this `VisitLog`.
+     */
+    public void setVisit(Visit visit) {
+        this.visit = visit;
+    }
+
+    /**
+     * Saves the {@link VisitLog} entity using {@link VisitLogService}.
+     * <p>
+     * Before saving, this method sets the associated {@link Visit} reference on the `VisitLog` entity to ensure
+     * completeness. The `VisitLogService` then handles the persistence, and the saved `VisitLog` instance
+     * is returned in a singleton set as required by the Jmix framework.
+     * </p>
+     *
+     * @param saveContext The save context provided by Jmix.
+     * @return A set containing the saved {@link VisitLog} entity.
+     */
+    @Install(target = Target.DATA_CONTEXT) // <1>
+    private Set<Object> saveDelegate(final SaveContext saveContext) {
+        VisitLog visitLog = getEditedEntity();
+
+        if (visitLog.getVisit() == null && visit != null) {
+            visitLog.setVisit(visit); // <2>
+        }
+
+        VisitLog savedVisitLog = visitLogService.saveVisitLog(visitLog); // <3>
+
+        return Set.of(savedVisitLog);
+    }
+
+    // end::class[]
 
     /**
      * Loads the {@link VisitLog} entity based on the given ID.
@@ -65,38 +106,6 @@ public class VisitLogDetailView extends StandardDetailView<VisitLog> {
         return visitLogService.loadVisitLog((String) loadContext.getId());
     }
 
-    /**
-     * Saves the {@link VisitLog} entity using {@link VisitLogService}.
-     * <p>
-     * Before saving, this method sets the associated {@link Visit} reference on the `VisitLog` entity to ensure
-     * completeness. The `VisitLogService` then handles the persistence, and the saved `VisitLog` instance
-     * is returned in a singleton set as required by the Jmix framework.
-     * </p>
-     *
-     * @param saveContext The save context provided by Jmix.
-     * @return A set containing the saved {@link VisitLog} entity.
-     */
-    @Install(target = Target.DATA_CONTEXT)
-    private Set<Object> saveDelegate(final SaveContext saveContext) {
-        VisitLog entity = getEditedEntity();
-
-        if (entity.getVisit() == null && visit != null) {
-            entity.setVisit(visit);
-        }
-
-        return Set.of(visitLogService.saveVisitLog(entity));
-    }
-
-    /**
-     * Sets the {@link Visit} reference for this view.
-     * <p>
-     * This method sets the visit context for the current `VisitLog` view. The provided `Visit` reference
-     * is later injected into the `VisitLog` entity before saving, establishing the correct association.
-     * </p>
-     *
-     * @param visit The {@link Visit} entity associated with this `VisitLog`.
-     */
-    public void setVisit(Visit visit) {
-        this.visit = visit;
-    }
+    // tag::end-class[]
 }
+// end::end-class[]

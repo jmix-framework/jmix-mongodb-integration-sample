@@ -44,19 +44,26 @@ import java.util.Objects;
 import java.util.Set;
 
 
+// tag::class[]
 @Route(value = "visits", layout = MainView.class)
 @ViewController("petclinic_Visit.list")
 @ViewDescriptor("visit-list-view.xml")
 @DialogMode(width = "64em")
 public class VisitListView extends StandardListView<Visit> {
 
+    @Autowired
+    private DialogWindows dialogWindows;
+
+    @ViewComponent
+    private DataGrid<Visit> visitsDataGrid;
+
+    // end::class[]
+
     private static final Logger log = LoggerFactory.getLogger(VisitListView.class);
     private static final String CALENDAR_DISPLAY_MODE_PARAM = "calendarDisplayMode";
     private static final String DATE_PARAM = "date";
     @Autowired
     private CurrentAuthentication currentAuthentication;
-    @Autowired
-    private DialogWindows dialogWindows;
     @Autowired
     private DatatypeFormatter datatypeFormatter;
     @ViewComponent
@@ -77,8 +84,6 @@ public class VisitListView extends StandardListView<Visit> {
     private UrlQueryParametersFacet urlQueryParameters;
     @ViewComponent
     private DataContext dataContext;
-    @ViewComponent
-    private DataGrid<Visit> visitsDataGrid;
 
     private class CalendarUrlQueryParametersBinder extends AbstractUrlQueryParametersBinder {
 
@@ -277,14 +282,20 @@ public class VisitListView extends StandardListView<Visit> {
         }
     }
 
+
+
+    // tag::open-visit-log-list-view[]
     @Subscribe("visitsDataGrid.visitLog")
     public void onVisitsDataGridVisitLog(final ActionPerformedEvent event) {
         DialogWindow<VisitLogListView> dialog = dialogWindows.lookup(this, VisitLog.class)
                 .withViewClass(VisitLogListView.class)
                 .build();
 
-        dialog.getView().setVisit(visitsDataGrid.getSingleSelectedItem());
+        VisitLogListView visitLogListView = dialog.getView(); // <1>
 
-        dialog.open();
+        visitLogListView.setVisit(visitsDataGrid.getSingleSelectedItem()); // <2>
+
+        dialog.open(); // <3>
     }
 }
+// end::open-visit-log-list-view[]

@@ -67,7 +67,9 @@ dependencies {
 
     // tag::mongodb-dependency[]
     // ...
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb' // MongoDB Starter for Spring Data
+
+    // MongoDB Starter for Spring Data
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
 }
 // end::mongodb-dependency[]

@@ -3,6 +3,7 @@ package io.jmix.petclinic.visit.log;
 
 // tag::imports[]
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.HashIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 // end::imports[]
@@ -45,6 +46,7 @@ public class VisitLogDocument {
     @Id // <2>
     private String id;
 
+    @HashIndexed // <4>
     private String visitId; // <3>
     private String title;
     private String description;
