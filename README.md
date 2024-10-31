@@ -357,7 +357,7 @@ The service ensures that the persistence and presentation layers are effectively
 
 The UI in this example is built to use VisitLog DTO entities for displaying visit logs associated with specific visits. Instead of directly interacting with MongoDB, the Jmix UI components interact with VisitLogService, which handles the conversion between VisitLog (UI DTO) and VisitLogDocument (MongoDB persistence entity).
 
-Here’s how each part of the UI integrates with the MongoDB datastore:
+Here’s how each part of the UI integrates with the MongoDB database:
 
 #### VisitLog List View
 

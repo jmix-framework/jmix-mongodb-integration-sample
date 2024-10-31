@@ -1,4 +1,4 @@
-:sample-project: jmix-mongodb-datastore-sample
+:sample-project: jmix-mongodb-integration-sample
 
 = MongoDB Integration in Jmix
 
