@@ -238,7 +238,11 @@ Let’s first look at how `VisitLogListView` receives information about which `V
 
 ==== Opening the Visit Log List View
 
-In `VisitListView`, a button allows users to open `VisitLogListView` for the currently selected `Visit`. When the button is clicked, the `onVisitsDataGridVisitLog` method is triggered:
+In `VisitListView`, a button allows users to open `VisitLogListView` for the currently selected `Visit`.
+
+image::1-visit-log-button.png[Visit Log Button, link="_images/1-visit-log-button.png"]
+
+When the button is clicked, the `onVisitsDataGridVisitLog` method is triggered:
 
 .VisitListView.java
 [source,java,indent=0]
@@ -254,6 +258,8 @@ This method performs two main actions:
 
 
 ==== Loading Visit Logs in VisitLogListView
+
+image::2-visit-logs.png[List Visit Logs for Visit, link="_images/2-visit-logs.png"]
 
 Within `VisitLogListView`, the `setVisit` method sets the current `Visit` for which logs will be displayed:
 
@@ -273,7 +279,12 @@ Next, we’ll take a closer look at how this setup functions within the `VisitLo
 [[visit-log-detail-view]]
 === Visit Log Detail View
 
-The `VisitLogDetailView` enables users to view and edit details for a selected `VisitLog` entry associated with a specific `Visit`. To save changes to `VisitLog` entries, this view overrides the default save mechanism by implementing a custom `SaveDelegate` in the `DataContext`.
+The `VisitLogDetailView` enables users to view and edit details for a selected `VisitLog` entry associated with a specific `Visit`.
+
+
+image::3-create-visit-log.png[Creating a Visit Log, link="_images/3-create-visit-log.png"]
+
+To save changes to `VisitLog` entries, this view overrides the default save mechanism by implementing a custom `SaveDelegate` in the `DataContext`.
 
 In the `saveDelegate` method, we leverage `VisitLogService` to handle persistence. Here’s how it works:
 

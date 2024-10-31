@@ -54,6 +54,19 @@
           </option>
         </ModuleSettings>
       </entry>
+      <entry key="jmix-mongodb-integration-sample.main">
+        <ModuleSettings>
+          <option name="dataStoreOptionsV2">
+            <map>
+              <entry key="main">
+                <value>
+                  <DataStoreSettingsV2 />
+                </value>
+              </entry>
+            </map>
+          </option>
+        </ModuleSettings>
+      </entry>
       <entry key="jmix-petclinic.main">
         <ModuleSettings>
           <option name="dataStoreOptionsV2">
