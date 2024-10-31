@@ -160,23 +160,23 @@ The `VisitLogDocument` class is annotated with `@Document`, mapping it to a Mong
 ----
 include::example$src/main/java/io/jmix/petclinic/visit/log/VisitLogDocument.java[tags=imports;visit-log-document;closing-class]
 ----
-<1> `@Document` - Marks this class as a MongoDB document, treating `VisitLogDocument` as a collection in MongoDB. This annotation is specific to non-relational databases and replaces `@Entity`.
+<1> `@Document` - Marks this class as a MongoDB document, treating `VisitLogDocument` as a collection in MongoDB. This annotation is specific to non-relational databases and is JPA equivalent of `@Entity`.
 <2> `@Id` - Defines the unique identifier field for each document in the MongoDB collection, functioning similarly to a primary key.
 <3> `visitId` - Stores the UUID of the associated `Visit` entry as a String, creating a link between `VisitLogDocument` and its related `Visit` record.
 <4> `@HashIndexed` - Annotates the `visitId` with a hashed index, optimizing MongoDB for fast querying by this field.
 
-The `VisitLogService` class manages data conversions between `VisitLog` and `VisitLogDocument`, maintaining a clean separation of concerns between persistence and presentation layers.
+The `VisitLogService` class manages data conversions between `VisitLog` and `VisitLogDocument`, maintaining a clean separation of concerns between persistence and UI layers.
 
 For more details on indexes, see the documentation on indexing: https://docs.spring.io/spring-data/mongodb/reference/mongodb/mapping/mapping-index-management.html[Index Management in Spring Data MongoDB].
 
 [[spring-data-repository]]
 == Spring Data Repository
 
-Next, let's take a look at how to access the database. We use a Spring Data repository from the above dependency `spring-boot-starter-data-mongodb`. Spring Data provides an abstraction layer specifically designed for data access, taking care of standard CRUD operations and making data interactions simpler and more efficient.
+Next, let's take a look at how to access the database. We define a Spring Data repository interface (leveraging the above dependency `spring-boot-starter-data-mongodb`). Spring Data provides an abstraction layer specifically designed for data access, taking care of standard CRUD operations and making data interactions simpler and more efficient.
 
-Using Spring Data is an alternative to the `DataManager` commonly used in Jmix. The idea is to define an interface that automatically includes standard CRUD methods. Additionally, it allows you to declare custom methods within the interface.
+Using Spring Data is an alternative to the `DataManager` API commonly used in Jmix. The idea is to define an interface that automatically includes standard CRUD methods. Additionally, it allows you to declare custom methods within the interface.
 
-The implementation of this interface is automatically derived and implemented from Spring Data. This means you don't have write the lower level code of the exact interaction with the database. Instead, you simply declare in the interface what data access methods you need and the implementation is automatically derived from the method name, the return type and the parameters that go into the method.
+The implementation of this interface is automatically derived and implemented by Spring Data. This means you don't have to write the code that performs the exact interaction with the database. Instead, you simply declare in the interface what data access methods you need and the implementation is automatically derived from the method name, the return type and the parameters that go into the method.
 
 .VisitLogDocumentRepository.java
 [source,java,indent=0]
@@ -184,21 +184,28 @@ The implementation of this interface is automatically derived and implemented fr
 include::example$src/main/java/io/jmix/petclinic/visit/log/VisitLogDocumentRepository.java[tags=imports;repository]
 ----
 
-This repository interface inherits CRUD operations like `save`, `findById`, `findAll`, and `deleteById` from `MongoRepository`, allowing standard data access without requiring additional implementation. It also includes a custom query method:
+This repository interface inherits CRUD operations like `save`, `findById`, `findAll`, and `deleteById` from `MongoRepository`, allowing standard data access without requiring additional implementation. It also includes one custom query method that we need to load all `VisitLogDocuments` for a given `Visit`: `findByVisitId(String visitId)`. Spring Data MongoDB automatically generates the query for this method based on its naming convention, making it easy to add custom finder methods.
 
-* `findByVisitId(String visitId)`: Retrieves a list of `VisitLogDocument` entities associated with a specific `visitId`. Spring Data MongoDB automatically generates the query for this method based on its naming convention, making it easy to add custom finder methods.
-
-For more details on MongoDB repositories and custom query methods, refer to the Spring Data MongoDB repository documentation: https://docs.spring.io/spring-data/mongodb/reference/mongodb/repositories/repositories.html[Spring Data MongoDB repository documentation^].
+For more details on MongoDB repositories and custom query methods, refer to the https://docs.spring.io/spring-data/mongodb/reference/mongodb/repositories/repositories.html[Spring Data MongoDB repository documentation^].
 
 TIP: By the way, Spring Data repositories aren’t just limited to MongoDB or other non-relational databases; you can also use them for regular relational database interactions in Jmix. This provides an alternative to the `DataManager` API and can be a convenient option in business logic code when Spring Data’s approach feels like a better fit. For more details on using Spring Data repositories in Jmix, see:
 xref:data-access:data-repositories.adoc[Jmix Data Repositories].
 
+To enable repository scanning, we need to inform Spring Data to search the application’s classpath for MongoDB repository interfaces. This is done through a configuration class located in the base package of our project, annotated with `@EnableMongoRepositories`. By placing this annotation on a configuration class, we instruct Spring Data to register any interfaces extending `MongoRepository` within the specified package as beans in the Spring application context, making them available for use in the application.
+
+.MongoDbConfiguration.java
+[source,java,indent=0]
+----
+include::example$src/main/java/io/jmix/petclinic/MongoDbConfiguration.java[tags=class]
+----
+This setup ensures that all custom MongoDB repository interfaces are discovered and registered automatically. With this in place, we are ready to use it in our `VisitLogService`.
+
 [[visit-log-service]]
 == Service Layer for Visit Logs
 
-After defining the repository, we can now use it within the service layer. While the repository handles only database access, the service layer takes on additional responsibilities, in particular data transformations and providing a UI-friendly API.
+While the repository handles only database access, the service layer takes on additional responsibilities, in particular data transformations and providing a UI-friendly API.
 
-In our example, `VisitLogService` links the UI and MongoDB by converting `VisitLog` entries between their UI format (`VisitLog`) and persistent structure (`VisitLogDocument`). This setup lets the UI interact with an easy-to-use DTO while ensuring data is correctly stored and retrieved in MongoDB.
+In our example, we will create a `VisitLogService` that links the UI and MongoDB by converting `VisitLog` entries between their UI format (`VisitLog`) and persistent structure (`VisitLogDocument`). This setup lets the UI interact with an easy-to-use DTO while ensuring data is correctly stored and retrieved in MongoDB.
 
 Let's take a look at how the conversion from the Document to the DTO entity works, by reviewing the method to find all `VisitLog` entities for a given `Visit`:
 
@@ -209,18 +216,6 @@ include::example$src/main/java/io/jmix/petclinic/visit/log/VisitLogService.java[
 ----
 
 The `findByVisit()` method fetches entries associated with a given `Visit` and converts them into `VisitLog` DTOs through `toVisitLog()`. During this conversion, we use `DataManager` resolves the `Visit` reference. This operation is not actually loading the `Visit` entity from the database, but instead just creates an in-memory reference to the entity object so that the calling code could use the `VisitLog::getVisit` and gets back the object of the correct type. Additionally, the resulting `VisitLog` object is marked as non-new via the corresponding `EntityStates` method.
-
-
-[TIP]
-====
-If you plan to display fields from the `Visit` entity alongside `VisitLog` entries (e.g., in a UI data grid), be aware of a potential N+1 query issue.
-
-When retrieving a list of `VisitLog` entries, the Jmix `DataManager` will execute a separate database query for each `Visit` entity associated with each `VisitLog`. This can be inefficient with many entries.
-
-Consider preloading the required `Visit` entities in batches and mapping them within the service layer to avoid unnecessary database load.
-
-For more on the N+1 query problem, see the following explanation: https://vladmihalcea.com/n-plus-1-query-problem/[Vlad Mihalcea: N+1 query problem with JPA and Hibernate].
-====
 
 [[ui-integration-with-jmix]]
 
@@ -267,7 +262,7 @@ Within `VisitLogListView`, the `setVisit` method sets the current `Visit` for wh
 ----
 include::example$src/main/java/io/jmix/petclinic/view/visitlog/VisitLogListView.java[tags=class;end-class]
 ----
-<1> The `setVisit` method stores the `Visit` instance, making it available for use within the load delegate later in the lifecycle.
+<1> The `setVisit` method stores the `Visit` instance, making it available for use within the load delegate later in the UI controller lifecycle.
 <2> Declares this method as the load delegate for `visitLogsDl`, specifying that data loading for this data loader will be handled by the custom delegate method.
 <3> Uses `VisitLogService` to execute the data loading with the previously stored `visit` instance, retrieving only the relevant `VisitLog` entries.
 

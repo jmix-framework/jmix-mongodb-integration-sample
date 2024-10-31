@@ -24,8 +24,10 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  * @see org.springframework.data.mongodb.repository.config.EnableMongoRepositories
  * @see org.springframework.data.mongodb.core.MongoTemplate
  */
+// tag::class[]
 @Configuration
 @EnableMongoRepositories
 public class MongoDbConfiguration {
 
 }
+// end::class[]
