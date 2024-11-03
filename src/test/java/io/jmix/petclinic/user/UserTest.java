@@ -1,9 +1,9 @@
 package io.jmix.petclinic.user;
 
-import io.jmix.petclinic.entity.User;
-import io.jmix.petclinic.test_support.AuthenticatedAsAdmin;
 import io.jmix.core.DataManager;
 import io.jmix.core.security.UserRepository;
+import io.jmix.petclinic.entity.User;
+import io.jmix.petclinic.test_support.AuthenticatedAsAdmin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

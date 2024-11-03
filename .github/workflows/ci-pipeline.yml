@@ -11,8 +11,14 @@ jobs:
     name: CI pipeline
     runs-on: ubuntu-latest
 
-    container:
-      image: ubuntu:latest
+    services:
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: petclinic
 
     steps:
       - name: Git Checkout
