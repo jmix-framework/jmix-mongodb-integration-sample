@@ -249,9 +249,7 @@ public class VisitListView extends StandardListView<Visit> {
     // tag::open-visit-log-list-view[]
     @Subscribe("visitsDataGrid.visitLog")
     public void onVisitsDataGridVisitLog(final ActionPerformedEvent event) {
-        DialogWindow<VisitLogListView> dialog = dialogWindows.lookup(this, VisitLog.class)
-                .withViewClass(VisitLogListView.class)
-                .build();
+        DialogWindow<VisitLogListView> dialog = dialogWindows.view(this, VisitLogListView.class).build();
 
         VisitLogListView visitLogListView = dialog.getView(); // <1>
 
