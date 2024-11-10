@@ -16,7 +16,7 @@ If you want to implement this guide step by step, you will need the following:
 * or clone it using git:
 `git clone https://github.com/jmix-framework/{sample-project}.git`
 
-Alternatively, you can **start with the base Petclinic project** and follow the step-by-step instructions in this guide to implement the features yourself: https://github.com/jmix-framework/jmix-petclinic-2[Jmix Petclinic] and follow along to add the functionality step-by-step.
+Alternatively, you can **start with the base Petclinic project** and follow the step-by-step instructions in this guide to implement the features yourself: https://github.com/jmix-framework/jmix-petclinic-2[Jmix Petclinic^].
 
 [[what-we-are-going-to-build]]
 == What We are Going to Build
@@ -26,41 +26,38 @@ In this guide, we enhance the https://github.com/jmix-framework/jmix-petclinic-2
 The final application includes:
 
 - **MongoDB Running and Connected**: MongoDB is set up via Docker and configured to connect with the Jmix application.
-- **Data Access Layer**: Spring Data repository and entity representation that allows interaction with `VisitLog` entries from the MongoDB database
+- **Data Access Layer**: A Spring Data repository and entity representation that facilitates interaction with `VisitLog` entries in the MongoDB database.
 - **Service and UI Integration**: MongoDB is integrated with the Jmix UI through a service layer, where Jmix’s UI delegation mechanisms are used to bridge data operations via `VisitLogService`.
-
-[[final-application]]
-=== Final Application
-
-video::zTYx_KSeMzY[youtube,width=1280,height=600]
 
 [[why-add-a-non-relational-database]]
 === Why Add a Non-Relational Database?
 
-In Jmix applications, the relational database is required as the primary datastore. However, there are situations where integrating a secondary, non-relational database like MongoDB is beneficial. This might be due to existing data storage requirements, such as an external MongoDB database managed by another application, or because specific use cases call for flexible data handling outside the constraints of a structured schema.
+In Jmix applications, the relational database is required as the primary data store. However, there are situations where integrating a secondary, non-relational database like MongoDB is beneficial. This might be due to existing data storage requirements, such as an external MongoDB database managed by another application, or because specific use cases call for flexible data handling outside the constraints of a structured schema.
 
-For instance, storing high-volume, log-like data—such as visit logs—is can be more efficient in a NoSQL database. MongoDB’s document-based structure provides a natural fit for this type of data, allowing for quick storage and retrieval without the overhead of complex relational mappings.
+For instance, storing high-volume, log-like data — such as visit logs — can be more efficient in a NoSQL database. MongoDB’s document-based structure provides a natural fit for this type of data, allowing for quick storage and retrieval without the overhead of complex relational mappings.
 
 [[integration-approaches]]
 == Integration Approaches
 
 In Jmix applications, MongoDB can be integrated as an additional database using one of two main approaches:
 
-=== UI Data Components with Custom Delegates
+[[ui-data-components-with-custom-delegates]]
+=== UI Data Components With Custom Delegates
 
-In this approach, MongoDB access is managed independently through standard UI Data Components configured with custom `LoadDelegate` and `SaveDelegate` methods. These delegates override the default behavior by bypassing the Data Manager API, instead pointing CRUD operations to custom service calls that handle data retrieval and persistence directly.
+In this approach, MongoDB access is managed independently through standard UI Data Components configured with custom xref:flow-ui:data/data-loaders.adoc#load-delegate[load delegate] and xref:flow-ui:data/data-context.adoc#save-delegate[save delegate] methods. These delegates override the default behavior by bypassing the Data Manager API, instead pointing CRUD operations to custom service calls that handle data retrieval and persistence directly.
 
-This setup is also the default recommendation in Jmix Studio when working with DTO entities and is generally preferred for cases that require a distinct data access layer. However, because this approach operates next to Jmix default storage / retrieval APIs, certain out-of-the-box features—like security constraints—might need to be custom implemented.
+This setup is also the default recommendation in Jmix Studio when working with DTO entities and is generally preferred for cases that require a distinct data access layer. However, since this approach functions independently of the default storage and retrieval APIs of Jmix, some built-in features, such as security constraints, may require custom implementation.
 
-For other features, such as the Generic Filter component, full support may be challenging because it assumes certain capabilities like JPQL support, which is not applicable to MongoDB.
+For other features, such as the xref:flow-ui:vc/components/genericFilter.adoc[] component, full support may be challenging because it requires translation of filter conditions to the form applicable to MongoDB.
 
-=== Providing a custom Jmix Datastore API for MongoDB
+[[providing-a-custom-datastore-for-mongodb]]
+=== Providing a Custom DataStore for MongoDB
 
-The Jmix `DataStore` API allows for custom datastore implementations at the entity level, enabling the Data Manager to work seamlessly with both relational and non-relational sources. By annotating entities to use a custom datastore, you can maintain a unified Data Manager interface within the application, even though different underlying datastores may be in use.
+Jmix allows you to provide a custom implementation of the `DataStore` interface, enabling the `DataManager` to work seamlessly with both relational and non-relational data sources.
 
-This approach supports high-level Jmix features, including the security system and the Generic Filter component. However, to fully leverage these features, the custom datastore implementation must be built to handle specific conditions and constraints. For example, filter conditions need to be mapped to MongoDB-compatible queries, and security constraints must be respected within the MongoDB queries. While this approach allows for tight integration with Jmix’s built-in features, it requires significant implementation effort to ensure compatibility with these higher-level Jmix functionalities, particularly due to the need to translate all special cases of JPQL to MongoDB queries, which makes it potentially very time-consuming. Therefore, this approach is beyond the scope of this guide.
+This approach supports high-level Jmix features, including the security system and the `genericFilter` component. However, to fully leverage these features, the custom data store implementation must be built to handle specific conditions and constraints. For example, filter conditions need to be mapped to MongoDB-compatible queries, and security constraints must be respected within the MongoDB queries. While this approach allows for tight integration with Jmix’s built-in features, it requires significant implementation effort to ensure compatibility with these higher-level Jmix functionalities, which makes it potentially very time-consuming. Therefore, this approach is beyond the scope of this guide.
 
-If you want to learn more about the DataStore API, see xref:data-model:data-stores.adoc[Data Model: Data Stores] and in particular the section on xref:data-model:data-stores.adoc#custom[Custom Data Store] implementations.
+If you want to learn more about the `DataStore` API, see xref:data-model:data-stores.adoc[Data Model: Data Stores] and in particular the section on xref:data-model:data-stores.adoc#custom[Custom Data Store] implementations.
 
 In this guide, we focus on using the first approach with UI Data Components with custom delegates and handling the MongoDB interaction on a custom service layer.
 
@@ -116,7 +113,7 @@ include::example$src/main/resources/application.properties[tags=mongodb-connecti
 
 This configuration directs Jmix to connect to MongoDB for managing `VisitLog` entities or other collections. The URI specifies the username and password (`root:petclinic`) to connect to the database as well as the database where the visit log entries should be stored: `visitlogs`.
 
-In MongoDB connection URIs, the authSource parameter specifies the database against which MongoDB should authenticate the provided credentials. Setting `authSource=admin` means that MongoDB will validate the user credentials (like `root:petclinic`) against the admin database, instead of the specific application database (petclinic in this case). For further information, you can refer to the official documentation from https://www.mongodb.com/docs/drivers/java/sync/v4.6/fundamentals/auth/[MongoDB on authentication sources and user management].
+In MongoDB connection URIs, the `authSource` parameter specifies the database against which MongoDB should authenticate the provided credentials. Setting `authSource=admin` means that MongoDB will validate the user credentials (like `root:petclinic`) against the admin database, instead of the specific application database (petclinic in this case). For further information, you can refer to the official MongoDB documentation on https://www.mongodb.com/docs/drivers/java/sync/v4.6/fundamentals/auth/[authentication sources and user management^].
 
 We will now examine each layer in detail, from database access and the service layer to the UI views.
 
@@ -132,7 +129,7 @@ This separation enhances the application structure by isolating persistence deta
 
 [WARNING]
 ====
-When using MongoDB to persist data, avoid serializing Jmix DTO entities directly to MongoDB, as this may cause serialization issues. Jmix uses xref:concepts:features.adoc#entity-enhancement[Entity enhancement] for persistent entities as well as DTO entities resulting in additional system fields that Jmix uses internally. MongoDB attempts to serialize those system fields, leading to errors or unexpected behavior.
+When using MongoDB to persist data, avoid serializing Jmix DTO entities directly to MongoDB, as this may cause serialization issues. Jmix uses xref:concepts:features.adoc#entity-enhancement[entity enhancement] for JPA and DTO entities resulting in additional system fields that Jmix uses internally. MongoDB attempts to serialize those system fields, leading to errors or unexpected behavior.
 
 By defining a dedicated Java class annotated with `@Document`, without the interference of Jmix entity enhancement you can ensure that MongoDB serialization functions as expected.
 ====
@@ -167,7 +164,7 @@ include::example$src/main/java/io/jmix/petclinic/visit/log/VisitLogDocument.java
 
 The `VisitLogService` class manages data conversions between `VisitLog` and `VisitLogDocument`, maintaining a clean separation of concerns between persistence and UI layers.
 
-For more details on indexes, see the documentation on indexing: https://docs.spring.io/spring-data/mongodb/reference/mongodb/mapping/mapping-index-management.html[Index Management in Spring Data MongoDB].
+For more details on indexes, see the documentation on indexing: https://docs.spring.io/spring-data/mongodb/reference/mongodb/mapping/mapping-index-management.html[Index Management in Spring Data MongoDB^].
 
 [[spring-data-repository]]
 == Spring Data Repository
@@ -188,7 +185,7 @@ This repository interface inherits CRUD operations like `save`, `findById`, `fin
 
 For more details on MongoDB repositories and custom query methods, refer to the https://docs.spring.io/spring-data/mongodb/reference/mongodb/repositories/repositories.html[Spring Data MongoDB repository documentation^].
 
-TIP: By the way, Spring Data repositories aren’t just limited to MongoDB or other non-relational databases; you can also use them for regular relational database interactions in Jmix. This provides an alternative to the `DataManager` API and can be a convenient option in business logic code when Spring Data’s approach feels like a better fit. For more details on using Spring Data repositories in Jmix, see:
+TIP: By the way, Spring Data repositories aren’t just limited to MongoDB or other non-relational databases; you can also use them for regular relational database interactions in Jmix. This provides an alternative to the `DataManager` API and can be a convenient option in business logic code when Spring Data’s approach feels like a better fit. For more details on using Spring Data repositories in Jmix, see
 xref:data-access:data-repositories.adoc[Jmix Data Repositories].
 
 To enable repository scanning, we need to inform Spring Data to search the application’s classpath for MongoDB repository interfaces. This is done through a configuration class located in the base package of our project, annotated with `@EnableMongoRepositories`. By placing this annotation on a configuration class, we instruct Spring Data to register any interfaces extending `MongoRepository` within the specified package as beans in the Spring application context, making them available for use in the application.
@@ -215,15 +212,14 @@ Let's take a look at how the conversion from the Document to the DTO entity work
 include::example$src/main/java/io/jmix/petclinic/visit/log/VisitLogService.java[tags=class;to-visit-log]
 ----
 
-The `findByVisit()` method fetches entries associated with a given `Visit` and converts them into `VisitLog` DTOs through `toVisitLog()`. During this conversion, we use `DataManager` resolves the `Visit` reference. This operation is not actually loading the `Visit` entity from the database, but instead just creates an in-memory reference to the entity object so that the calling code could use the `VisitLog::getVisit` and gets back the object of the correct type. Additionally, the resulting `VisitLog` object is marked as non-new via the corresponding `EntityStates` method.
+The `findByVisit()` method fetches entries associated with a given `Visit` and converts them into `VisitLog` DTOs through `toVisitLog()`. During this conversion, we use `DataManager` to resolve the `Visit` reference. This operation is not actually loading the `Visit` entity from the database, but instead just creates an in-memory reference to the entity object so that the calling code could use the `VisitLog::getVisit` and gets back the object of the correct type. Additionally, the resulting `VisitLog` object is marked as non-new via the corresponding `EntityStates` method.
 
 [[ui-integration-with-jmix]]
-
 == UI Integration with Jmix
 
 Now that we have `VisitLogService` set up, we can use it in the UI to load and store `VisitLog` data associated with specific visits.
 
-In both the list and detail views, we use `DataContext` delegates to customize how Jmix accesses data. Where Jmix would normally interact with a relational database, we use custom implementations with calls to `VisitLogService` instead.
+In both the list and detail views, we use load and save delegates to customize how Jmix accesses data. Where Jmix would normally interact with a relational database, we use custom implementations with calls to `VisitLogService` instead.
 
 [[visit-log-list-view]]
 === Visit Log List View
@@ -236,7 +232,8 @@ The `VisitLogListView` provides a dedicated view for managing `VisitLog` entries
 
 Let’s first look at how `VisitLogListView` receives information about which `Visit` it should display logs for and how the UI triggers this data loading.
 
-==== Opening the Visit Log List View
+[[opening-visit-log-list-view]]
+==== Opening Visit Log List View
 
 In `VisitListView`, a button allows users to open `VisitLogListView` for the currently selected `Visit`.
 
@@ -256,7 +253,7 @@ This method performs two main actions:
 <2> The selected `Visit` is then passed to the `VisitLogListView` instance through the `setVisit` method, setting up the `Visit` context that will later be used when `VisitLogListView` loads and displays data.
 <3> Finally, `dialog.open()` is called to display `VisitLogListView` and initiate its lifecycle. Because `setVisit` is called before `open`, the `visit` instance variable is already populated when Jmix UI lifecycle methods execute, ensuring it is available when the data is supposed to be loaded.
 
-
+[[loading-visit-logs-in-visitloglistview]]
 ==== Loading Visit Logs in VisitLogListView
 
 image::2-visit-logs.png[List Visit Logs for Visit, link="_images/2-visit-logs.png"]
@@ -284,7 +281,7 @@ The `VisitLogDetailView` enables users to view and edit details for a selected `
 
 image::3-create-visit-log.png[Creating a Visit Log, link="_images/3-create-visit-log.png"]
 
-To save changes to `VisitLog` entries, this view overrides the default save mechanism by implementing a custom `SaveDelegate` in the `DataContext`.
+To save changes to `VisitLog` entries, this view overrides the default save mechanism by implementing a custom save delegate in the `DataContext`.
 
 In the `saveDelegate` method, we leverage `VisitLogService` to handle persistence. Here’s how it works:
 
@@ -293,11 +290,11 @@ In the `saveDelegate` method, we leverage `VisitLogService` to handle persistenc
 ----
 include::example$src/main/java/io/jmix/petclinic/view/visitlog/VisitLogDetailView.java[tags=class;end-class]
 ----
-<1> Configures this method as the `SaveDelegate` for the `DataContext`, meaning it will intercept and handle the save process for `VisitLog` entities.
+<1> Configures this method as the save delegate for the `DataContext`, meaning it will intercept and handle the save process for `VisitLog` entities.
 <2> Checks if the `VisitLog` entry has no `Visit` reference and, if so, assigns the current `Visit` to ensure it’s linked correctly.
 <3> Saves the `VisitLog` entity by calling `visitLogService.saveVisitLog`, which ensures that the entity is persisted to MongoDB through the service layer.
 
-By defining this custom `SaveDelegate`, we maintain control over how `VisitLog` entries are saved, ensuring any missing `Visit` reference is populated before persistence. This method also simplifies saving logic in the UI, as it seamlessly integrates the service call within the view.
+By defining this custom save delegate, we maintain control over how `VisitLog` entries are saved, ensuring any missing `Visit` reference is populated before persistence. This method also simplifies saving logic in the UI, as it seamlessly integrates the service call within the view.
 
 For more information see xref:flow-ui:data/data-context.adoc#save-delegate[Data Context: Save Delegate] in the reference documentation.
 
@@ -306,12 +303,12 @@ For more information see xref:flow-ui:data/data-context.adoc#save-delegate[Data 
 
 In this guide, we integrated MongoDB as an additional datastore to manage visit log entries in our application. By using MongoDB alongside the main relational database, we demonstrated how Jmix can effectively support log data storage and retrieval, making it possible to handle large, flexible datasets outside the primary persistence context.
 
-We combined the use of `LoadDelegate` and `SaveDelegate` methods with DTO entities to enable  data loading and storage via a custom service layer.  Jmix’s UI framework seamlessly integrates with both types of entities, making it possible to use features like data binding and UI interaction without worrying about the underlying persistence mechanism.
+We combined the use of `loadDelegate` and `saveDelegate` methods with DTO entities to enable  data loading and storage via a custom service layer.  Jmix’s UI framework seamlessly integrates with both types of entities, making it possible to use features like data binding and UI interaction without worrying about the underlying persistence mechanism.
 
-Jmix supports polyglot persistence - making it easy to integrate existing non-relational data sources or use different databases on a per-use-case basis. This flexibility allows us to easily connect to various data sources and choose the best technology depending on the specific needs, whether it involves integrating an existing MongoDB data store or combining different types of databases within the same architecture to optimize for each use case.
+Jmix supports polyglot persistence - making it easy to integrate existing non-relational data sources or use different databases on a per-use-case basis. This flexibility allows you to easily connect to various data sources and choose the best technology depending on the specific needs, whether it involves integrating an existing MongoDB data store or combining different types of databases within the same architecture to optimize for each use case.
 
 [[further-information]]
 === Further Information
-* https://docs.spring.io/spring-data/mongodb/reference/mongodb/repositories/repositories.html[Spring Data MongoDB repository documentation^]
+* https://docs.spring.io/spring-data/mongodb/reference/mongodb/repositories/repositories.html[Spring Data: MongoDB Repositories^]
 * xref:data-model:entities.adoc#dto[Jmix: DTO Entity]
 * xref:flow-ui:data-components.adoc[Jmix UI: Data Components]
