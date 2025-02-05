@@ -10,13 +10,22 @@ This guide demonstrates how to integrate MongoDB as an additional database withi
 
 If you want to implement this guide step by step, you will need the following:
 
-1. xref:ROOT:setup.adoc[Setup Jmix Studio]
-2. Download the sample project. You can **download the completed sample project**, which includes all the examples used in this guide. This allows you to explore the finished implementation and experiment with the functionality right away.
-* https://github.com/jmix-framework/{sample-project}/archive/refs/heads/main.zip[Download^] and unzip the source repository
-* or clone it using git:
-`git clone https://github.com/jmix-framework/{sample-project}.git`
+. xref:ROOT:setup.adoc[Setup Jmix Studio]
 
-Alternatively, you can **start with the base Petclinic project** and follow the step-by-step instructions in this guide to implement the features yourself: https://github.com/jmix-framework/jmix-petclinic-2[Jmix Petclinic^].
+. Get the completed sample project, which includes all the examples used in this guide. This allows you to explore the finished implementation and experiment with the functionality right away.
+
+* You can https://github.com/jmix-framework/{sample-project}/archive/refs/heads/{page-origin-branch}.zip[download^] and unzip the source repository
+
+* Or clone it and switch to the `{page-origin-branch}` branch:
++
+[source,subs=attributes+]
+----
+git clone https://github.com/jmix-framework/{sample-project}
+cd {sample-project}
+git checkout {page-origin-branch}
+----
+
+. Alternatively, you can start with the base https://github.com/jmix-framework/jmix-petclinic-2[Jmix Petclinic^] project and follow the step-by-step instructions in this guide to implement the features yourself.
 
 [[what-we-are-going-to-build]]
 == What We are Going to Build
