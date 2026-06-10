@@ -24,7 +24,7 @@ public class MainView extends StandardMainView {
     @Autowired
     private UiComponents uiComponents;
 
-    @Autowired
+    @ViewComponent
     private MessageBundle messageBundle;
 
     @Autowired
