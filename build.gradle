@@ -1,5 +1,5 @@
 plugins {
-    id 'io.jmix' version '2.8.1'
+    id 'io.jmix' version '3.0.0-M5'
     id 'java'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.9'
 }
@@ -8,7 +8,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'com.vaadin'
 
 jmix {
-    bomVersion = '2.8.1'
+    bomVersion = '3.0.999-SNAPSHOT'
     projectId = 'petclinic'
 }
 
@@ -19,12 +19,13 @@ version = '0.0.1-SNAPSHOT'
 repositories {
     mavenCentral()
     maven {
-        url = 'https://global.repo.jmix.io/repository/public'
+        url = 'https://nexus.jmix.io/repository/public'
     }
 }
 
 vaadin {
     optimizeBundle = false
+    productionMode = false
 }
 
 // tag::gradle-dependencies[]
@@ -67,17 +68,11 @@ dependencies {
     // ...
 
     // MongoDB Starter for Spring Data
-    implementation('org.springframework.boot:spring-boot-starter-data-mongodb') {
-        // TODO remove the exclusion and explicit dependencies after upgrading to Spring Boot 3.5.1+ (see https://github.com/spring-projects/spring-boot/issues/45660)
-        exclude group: 'org.mongodb'
-    }
-    implementation 'org.mongodb:mongodb-driver-sync:5.4.0'
-    implementation 'org.mongodb:mongodb-driver-core:5.4.0'
-    implementation 'org.mongodb:mongodb-driver-sync:5.4.0'
-    implementation 'org.mongodb:bson:5.4.0'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    // end::mongodb-dependency[]
 
+    implementation 'com.vaadin:vaadin-dev'
 }
-// end::mongodb-dependency[]
 
 configurations.implementation {
     exclude group: 'com.vaadin', module: 'hilla'
