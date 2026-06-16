@@ -68,18 +68,11 @@ dependencies {
     // ...
 
     // MongoDB Starter for Spring Data
-    implementation('org.springframework.boot:spring-boot-starter-data-mongodb') {
-        // TODO remove the exclusion and explicit dependencies after upgrading to Spring Boot 3.5.1+ (see https://github.com/spring-projects/spring-boot/issues/45660)
-        exclude group: 'org.mongodb'
-    }
-    implementation 'org.mongodb:mongodb-driver-sync:5.4.0'
-    implementation 'org.mongodb:mongodb-driver-core:5.4.0'
-    implementation 'org.mongodb:mongodb-driver-sync:5.4.0'
-    implementation 'org.mongodb:bson:5.4.0'
-    implementation 'com.vaadin:vaadin-dev'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    // end::mongodb-dependency[]
 
+    implementation 'com.vaadin:vaadin-dev'
 }
-// end::mongodb-dependency[]
 
 configurations.implementation {
     exclude group: 'com.vaadin', module: 'hilla'
